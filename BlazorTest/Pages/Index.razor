@@ -1,0 +1,88 @@
+﻿@page "/"
+<PageTitle>Index</PageTitle>
+
+<MudButton>RESET</MudButton>
+
+<MudContainer Class="d-flex flex-column">
+    <MudContainer Class="d-flex">
+        <h3>Komponent</h3>
+    </MudContainer>
+    <MudContainer>
+        <MudTextField @bind-Value="TextValue" Variant="Variant.Text" Immediate=true TextChanged="MyMethod"></MudTextField>
+    </MudContainer>
+    <MudContainer>
+        Czas pracy (sekundy): 
+    </MudContainer>
+    <MudContainer Class="d-flex" Wrap="Wrap">
+        @foreach (var button in buttons)
+        {
+            <MudButton OnClick="@(()=> SetMessage(button.Key))">@button.Value.Caption</MudButton>
+        }
+    </MudContainer>
+    <MudContainer>
+        <h2>Wartość: @otherValue</h2>
+    </MudContainer>
+    <MudContainer>
+        <ul>
+            @foreach (var message in ClickedButtons)
+            {
+                <li>Kliknięto przycisk: @message</li>
+            }
+        </ul>
+
+    </MudContainer>
+</MudContainer>
+
+        
+
+
+
+
+
+@code {
+    private string otherValue { get; set; }
+    private string TextValue { get; set; }
+
+    public Guid? ResetId { get; set; }
+
+    public List<int> ClickedButtons = new();
+    public int Message { get; set; }
+
+
+    public class ButtonDefinition
+    {
+        public string Caption { get; set; }
+        public string Icon { get; set; }
+    }
+
+
+    public Dictionary<int, ButtonDefinition> buttons;
+
+    protected override void OnInitialized()
+    {
+        buttons = new()
+        {
+            { 1, new ButtonDefinition {Caption= "T1", Icon = "icon1.png"}},
+            { 2, new ButtonDefinition {Caption= "T2", Icon = "icon2.png"}},
+            { 3, new ButtonDefinition {Caption= "T3", Icon = "icon3.png"}},
+            { 4, new ButtonDefinition {Caption= "T4", Icon = "icon4.png"}},
+            { 5, new ButtonDefinition {Caption= "T5", Icon = "icon5.png"}},
+            { 6, new ButtonDefinition {Caption= "T6", Icon = "icon6.png"}},
+            { 7, new ButtonDefinition {Caption= "T7", Icon = "icon7.png"}},
+            { 8, new ButtonDefinition {Caption= "T8", Icon = "icon8.png"}},
+        };
+    }
+
+
+    public void MyMethod()
+    {
+        otherValue = TextValue;
+    }
+
+    void SetMessage(int caption)
+    {
+        Message = caption;
+        ClickedButtons.Add(Message);
+    }
+
+}

@@ -1,117 +1,33 @@
 ﻿@page "/"
 
 <PageTitle>Index</PageTitle>
-
-<MudButton OnClick="clickedResetButton">RESET</MudButton>
-
-<MudContainer Class="d-flex flex-column">
-    <MudContainer Class="d-flex">
-        <h3>Komponent</h3>
-    </MudContainer>
-    <MudContainer Class="flex-half">
-        <MudTextField @bind-Value="Value" Variant="Variant.Text" Immediate=true TextChanged="MyMethod"></MudTextField>
-    </MudContainer>
-    <MudContainer>
-        <p>@time</p>
-    </MudContainer>
-    <MudContainer Class="flex-half d-flex justify-content-end" Wrap="Wrap">
-        <MudButtonGroup>
-        @foreach (var button in Buttons)
-        {
-            <MudButton OnClick="@(() => Clicked(button.Key))">@button.Value.Caption</MudButton>
-        }
-        </MudButtonGroup>
-    </MudContainer>
-    <MudContainer>
-        <h2>Wartość: @otherValue</h2>
-    </MudContainer>
-    <MudContainer>
-        <ul>
-            @foreach (var message in ClickedButtons)
+<MudPaper Outlined="true" Class="border-0">
+    <MudButton OnClick="clickedResetButton">RESET</MudButton>
+</MudPaper>
+<MudPaper MaxWidth="420px" Outlined="true" Class="border-0">
+    <MudGrid>
+        <MudItem >
+            <MudTextField  @bind-Value="Value" Variant="Variant.Text" Immediate=true TextChanged="MyMethod"></MudTextField>
+            <p>@time</p>
+        </MudItem>
+        <MudItem>
+            @foreach (var button in Buttons)
             {
-                <li>Kliknięto przycisk: @message</li>
+                <MudButton OnClick="@(() => Clicked(button.Key))">@button.Value.Caption</MudButton>
             }
-        </ul>
+        </MudItem>
+    </MudGrid>
+    <MudPaper Outlined="true" Class="border-0">
+        <h2>Wartość: @otherValue</h2>
+    </MudPaper>
+    <MudPaper Outlined="true" Class="border-0">
+    <MudList>
+        @foreach (var message in ClickedButtons)
+            {
+                <MudListItem><li>Kliknięto przycisk: @message</li></MudListItem>
+            }
+    </MudList>
+    </MudPaper>
+</MudPaper>
 
-    </MudContainer>
-</MudContainer>
 
-        
-
-
-
-
-
-@code {
-    private EventCallback<int> OnButtonClick { get; set; }
-
-    private string otherValue { get; set; }
-    private string Value { get; set; }
-
-    public Guid? Reset { get; set; }
-
-    public Dictionary<int, ButtonDefinition> Buttons { get; set; }
-
-    private async Task Clicked(int Id)
-    {
-        ClickedButtons.Add(Id);
-        await OnButtonClick.InvokeAsync(Id);
-    }
-
-    public void MyMethod()
-    {
-        otherValue = Value;
-    }
-
-    Guid initializeGuid = Guid.NewGuid();
-
-    public void clickedResetButton()
-    {
-        Guid newGuid = Guid.NewGuid();
-        if (newGuid != initializeGuid)
-        {
-            Value = "";
-            elapsedTimeInSeconds = 0;
-            ClickedButtons.Clear();
-        }
-    }
-
-    public List<int> ClickedButtons = new();
-    public int Message { get; set; }
-
-    public class ButtonDefinition
-    {
-        public string Caption { get; set; }
-        public string Icon { get; set; }
-    }
-
-    protected override void OnInitialized()
-    {
-        int i = 5;
-        Buttons = new();
-
-        for (int j = 1; j <= i; j++)
-        {
-            Buttons.Add(j, new ButtonDefinition { Caption = $"T{j}", Icon = $"icon{j}.png" });
-        }
-
-        elapsedTimeInSeconds = 0;
-        timer = new Timer(UpdateElapsedTime, null, 0, 1000);
-    }
-
-    private Timer timer;
-    private int elapsedTimeInSeconds;
-    private string time;
-
-    private void StopTimer()
-    {
-        timer?.Change(Timeout.Infinite, Timeout.Infinite);
-    }
-
-    private void UpdateElapsedTime(object state)
-    {
-        elapsedTimeInSeconds++;
-        time = $"Czas pracy (sekundy): {elapsedTimeInSeconds}";
-        InvokeAsync(StateHasChanged);
-    }
-}

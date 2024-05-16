@@ -1,22 +1,22 @@
 ﻿@page "/"
 <PageTitle>Index</PageTitle>
 
-<MudButton>RESET</MudButton>
+<MudButton OnClick="clickedResetButton">RESET</MudButton>
 
 <MudContainer Class="d-flex flex-column">
     <MudContainer Class="d-flex">
         <h3>Komponent</h3>
     </MudContainer>
     <MudContainer>
-        <MudTextField @bind-Value="TextValue" Variant="Variant.Text" Immediate=true TextChanged="MyMethod"></MudTextField>
+        <MudTextField @bind-Value="Value" Variant="Variant.Text" Immediate=true TextChanged="MyMethod"></MudTextField>
     </MudContainer>
     <MudContainer>
-        Czas pracy (sekundy): 
+        <p>@time</p>
     </MudContainer>
     <MudContainer Class="d-flex" Wrap="Wrap">
         @foreach (var button in buttons)
         {
-            <MudButton OnClick="@(()=> SetMessage(button.Key))">@button.Value.Caption</MudButton>
+            <MudButton OnClick="@(() => Clicked(button.Key))">@button.Value.Caption</MudButton>
         }
     </MudContainer>
     <MudContainer>
@@ -40,23 +40,48 @@
 
 
 @code {
-    private string otherValue { get; set; }
-    private string TextValue { get; set; }
 
-    public Guid? ResetId { get; set; }
+    private EventCallback<int> OnButtonClick { get; set; }
+
+    private string otherValue { get; set; }
+    private string Value { get; set; }
+
+    public Guid? Reset { get; set; }
+
+    public Dictionary<int, ButtonDefinition> buttons { get; set; }
+
+    private async Task Clicked(int Id)
+    {
+        ClickedButtons.Add(Id);
+        await OnButtonClick.InvokeAsync(Id);
+    }
+    
+    public void MyMethod()
+    {
+        otherValue = Value;
+    }
+
+    Guid initializeGuid = Guid.NewGuid();
+
+    public void clickedResetButton()
+    {
+        Guid newGuid = Guid.NewGuid();
+        if (newGuid != initializeGuid)
+        {
+            Value = "";
+            elapsedTimeInSeconds = 0;
+            ClickedButtons.Clear();
+        }
+    }
 
     public List<int> ClickedButtons = new();
     public int Message { get; set; }
-
 
     public class ButtonDefinition
     {
         public string Caption { get; set; }
         public string Icon { get; set; }
     }
-
-
-    public Dictionary<int, ButtonDefinition> buttons;
 
     protected override void OnInitialized()
     {
@@ -71,18 +96,23 @@
             { 7, new ButtonDefinition {Caption= "T7", Icon = "icon7.png"}},
             { 8, new ButtonDefinition {Caption= "T8", Icon = "icon8.png"}},
         };
+        elapsedTimeInSeconds = 0;
+        timer = new Timer(UpdateElapsedTime, null, 0, 1000);
     }
 
+    private Timer timer;
+    private int elapsedTimeInSeconds;
+    private string time;
 
-    public void MyMethod()
+    private void StopTimer()
     {
-        otherValue = TextValue;
+        timer?.Change(Timeout.Infinite, Timeout.Infinite);
     }
 
-    void SetMessage(int caption)
+    private void UpdateElapsedTime(object state)
     {
-        Message = caption;
-        ClickedButtons.Add(Message);
+        elapsedTimeInSeconds++;
+        time = $"Czas pracy (sekundy): {elapsedTimeInSeconds}";
+        InvokeAsync(StateHasChanged);
     }
-
 }

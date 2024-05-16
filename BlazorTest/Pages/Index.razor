@@ -1,4 +1,5 @@
 ﻿@page "/"
+
 <PageTitle>Index</PageTitle>
 
 <MudButton OnClick="clickedResetButton">RESET</MudButton>
@@ -7,17 +8,19 @@
     <MudContainer Class="d-flex">
         <h3>Komponent</h3>
     </MudContainer>
-    <MudContainer>
+    <MudContainer Class="flex-half">
         <MudTextField @bind-Value="Value" Variant="Variant.Text" Immediate=true TextChanged="MyMethod"></MudTextField>
     </MudContainer>
     <MudContainer>
         <p>@time</p>
     </MudContainer>
-    <MudContainer Class="d-flex" Wrap="Wrap">
-        @foreach (var button in buttons)
+    <MudContainer Class="flex-half d-flex justify-content-end" Wrap="Wrap">
+        <MudButtonGroup>
+        @foreach (var button in Buttons)
         {
             <MudButton OnClick="@(() => Clicked(button.Key))">@button.Value.Caption</MudButton>
         }
+        </MudButtonGroup>
     </MudContainer>
     <MudContainer>
         <h2>Wartość: @otherValue</h2>
@@ -40,7 +43,6 @@
 
 
 @code {
-
     private EventCallback<int> OnButtonClick { get; set; }
 
     private string otherValue { get; set; }
@@ -48,14 +50,14 @@
 
     public Guid? Reset { get; set; }
 
-    public Dictionary<int, ButtonDefinition> buttons { get; set; }
+    public Dictionary<int, ButtonDefinition> Buttons { get; set; }
 
     private async Task Clicked(int Id)
     {
         ClickedButtons.Add(Id);
         await OnButtonClick.InvokeAsync(Id);
     }
-    
+
     public void MyMethod()
     {
         otherValue = Value;
@@ -85,17 +87,14 @@
 
     protected override void OnInitialized()
     {
-        buttons = new()
+        int i = 5;
+        Buttons = new();
+
+        for (int j = 1; j <= i; j++)
         {
-            { 1, new ButtonDefinition {Caption= "T1", Icon = "icon1.png"}},
-            { 2, new ButtonDefinition {Caption= "T2", Icon = "icon2.png"}},
-            { 3, new ButtonDefinition {Caption= "T3", Icon = "icon3.png"}},
-            { 4, new ButtonDefinition {Caption= "T4", Icon = "icon4.png"}},
-            { 5, new ButtonDefinition {Caption= "T5", Icon = "icon5.png"}},
-            { 6, new ButtonDefinition {Caption= "T6", Icon = "icon6.png"}},
-            { 7, new ButtonDefinition {Caption= "T7", Icon = "icon7.png"}},
-            { 8, new ButtonDefinition {Caption= "T8", Icon = "icon8.png"}},
-        };
+            Buttons.Add(j, new ButtonDefinition { Caption = $"T{j}", Icon = $"icon{j}.png" });
+        }
+
         elapsedTimeInSeconds = 0;
         timer = new Timer(UpdateElapsedTime, null, 0, 1000);
     }
